@@ -1,0 +1,21 @@
+.footer-contact a {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.footer-bottom {
+  align-items: center;
+}
+
+.secco-credit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--ink) !important;
+  font-weight: 600;
+}
+
+.secco-credit strong {
+  color: var(--orange);
+}
