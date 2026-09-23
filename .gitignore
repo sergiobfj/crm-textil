@@ -216,11 +216,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
-# CRM Textil - Frontend
-frontend/node_modules/
-frontend/dist/
-
-# CRM Textil - Backend
-backend/node_modules/
-backend/dist/
