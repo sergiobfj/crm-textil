@@ -1,341 +1,277 @@
-SECCO Têxtil API
+# 🧵 SECCO Têxtil API
 
-Backend da aplicação SECCO Têxtil, desenvolvido com FastAPI, Supabase Auth e PostgreSQL.
+ > Backend do **SECCO Têxtil**, um CRM para gestão de lojas e empresas do setor têxtil.
 
-A aplicação utiliza o Supabase para autenticação, persistência dos dados e controle de acesso por organização.
+ Construído com **FastAPI + Supabase + PostgreSQL**, com autenticação e arquitetura **multi-tenant**, permitindo que diferentes empresas utilizem a mesma aplicação mantendo seus dados isolados.
 
-Tecnologias
-Python
-FastAPI
-Uvicorn
-Pydantic Settings
-Supabase
-PostgreSQL
-Supabase Auth
-Row Level Security (RLS)
-Estrutura
+---
+
+ ## 🚀 Stack
+
+ | Tecnologia | Uso |
+| --- | --- |
+| 🐍 Python | Linguagem |
+| ⚡ FastAPI | API REST |
+| 🚀 Uvicorn | Servidor |
+| 🔐 Supabase Auth | Autenticação |
+| 🐘 PostgreSQL | Banco de dados |
+| 🛡️ RLS | Isolamento entre organizações |
+| 📦 Pydantic | Validação e configurações |
+
+---
+
+ ## 📁 Estrutura
+
+```
 backend/
 ├── app/
-│   ├── api/
-│   │   ├── auth.py
-│   │   └── health.py
-│   │
-│   ├── core/
-│   │   ├── config.py
-│   │   └── security.py
-│   │
-│   ├── schemas/
-│   │   └── auth.py
-│   │
-│   ├── services/
-│   │   ├── auth.py
-│   │   ├── current_user.py
-│   │   └── supabase.py
-│   │
-│   └── main.py
+│   ├── api/          # Rotas da API
+│   ├── core/         # Configurações e segurança
+│   ├── schemas/      # Schemas Pydantic
+│   ├── services/     # Regras e integrações
+│   └── main.py       # Inicialização da API
 │
-├── .env
+├── .env              # Variáveis locais
+├── .gitignore
 ├── requirements.txt
 └── README.md
+```
 
-Banco de dados
+---
 
-A aplicação utiliza uma arquitetura multi-tenant.
+ ## ⚙️ Configuração
 
-A estrutura principal é:
+ ### 1\. Criar ambiente virtual
 
+ **Windows / PowerShell:**
+
+```
+python -m venv venv
+venv\Scripts\activate
+```
+
+ ### 2\. Instalar dependências
+
+```
+pip install -r requirements.txt
+```
+
+ ### 3\. Configurar `.env`
+
+ Crie o arquivo `.env` dentro de `backend/`:
+
+```
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+ > 🔒 **Nunca** envie a `SUPABASE_SERVICE_ROLE_KEY` para o frontend ou versionamento.
+
+---
+
+ ## ▶️ Executar
+
+ Dentro da pasta `backend/`:
+
+```
+uvicorn app.main:app --reload
+```
+
+ API:
+
+```
+http://127.0.0.1:8000
+```
+
+ Swagger:
+
+```
+http://127.0.0.1:8000/docs
+```
+
+ OpenAPI:
+
+```
+http://127.0.0.1:8000/openapi.json
+```
+
+---
+
+ ## 🔐 Autenticação
+
+ A autenticação utiliza o **Supabase Auth**.
+
+ O fluxo principal é:
+
+```
+Usuário
+   │
+   ▼
+Supabase Auth
+   │
+   ▼
 auth.users
-    │
-    │ id
-    ▼
+   │
+   ▼
 profiles
-    │
-    │ organization_id
-    ▼
+   │
+   └── organization_id
+          │
+          ▼
+     organizations
+```
+
+ O primeiro usuário de uma organização é criado como:
+
+```
+owner
+```
+
+ Funcionários e outros usuários serão adicionados posteriormente através de um fluxo de convite.
+
+---
+
+ ## 🏢 Multi-tenant
+
+ Cada usuário pertence a uma organização:
+
+```
+profiles.organization_id
+        │
+        ▼
+organizations.id
+```
+
+ Os dados de uma organização não devem ser acessíveis por usuários de outra organização.
+
+ Essa proteção será feita em duas camadas:
+
+```
+        JWT
+         │
+         ▼
+    FastAPI
+         │
+         ▼
+ organization_id
+         │
+         ▼
+ PostgreSQL + RLS
+```
+
+ O `organization_id` **não deve ser confiado ao frontend**.
+
+---
+
+ ## 🗄️ Banco de dados
+
+ Principais tabelas:
+
+```
 organizations
-    │
-    │ organization_id
-    ▼
-parties
+     │
+     ├── profiles
+     │
+     └── parties
 
 auth.users
+     │
+     └── profiles
+```
 
-Gerenciado pelo Supabase Auth.
+ ### `organizations`
 
-É responsável pela identidade e autenticação do usuário.
+ Empresas/lojas cadastradas no sistema.
 
-profiles
+ ### `profiles`
 
-Armazena os dados específicos do usuário na aplicação:
+ Dados dos usuários da aplicação.
 
+```
 id
 organization_id
 full_name
 role
 created_at
+```
 
+ ### `parties`
 
-profiles.id possui uma referência para auth.users.id.
+ Clientes, fornecedores e demais partes relacionadas à organização.
 
-organizations
+---
 
-Representa uma empresa/loja dentro do sistema:
+ ## ❤️ Health Check
 
-id
-name
-document
-created_at
+ Verificar conexão com o banco:
 
-parties
-
-Representa entidades relacionadas à organização, como clientes e fornecedores:
-
-id
-organization_id
-name
-trade_name
-document
-email
-phone
-whatsapp
-pix_key
-bank_name
-bank_agency
-bank_account
-notes
-created_at
-
-Multi-tenancy
-
-Cada usuário pertence a uma organização através de:
-
-profiles.organization_id
-
-
-O usuário também possui um papel:
-
-owner
-admin
-manager
-employee
-
-
-O organization_id e o role não devem ser confiados ao frontend.
-
-Eles devem ser obtidos a partir do usuário autenticado e do registro correspondente em profiles.
-
-Exemplo:
-
-Usuário
-  │
-  ├── id
-  ├── email
-  │
-  ▼
-profiles
-  │
-  ├── organization_id
-  └── role
-
-
-As tabelas compartilhadas entre organizações devem utilizar Row Level Security (RLS) para impedir que usuários acessem dados pertencentes a outras organizações.
-
-Autenticação
-
-A autenticação é realizada pelo Supabase Auth.
-
-O fluxo esperado é:
-
-Frontend
-   │
-   │ email + password
-   ▼
-FastAPI
-   │
-   ▼
-Supabase Auth
-   │
-   ▼
-auth.users
-   │
-   ▼
-access_token (JWT)
-
-
-Nas requisições autenticadas, o token deve ser enviado como:
-
-Authorization: Bearer <access_token>
-
-
-O backend valida o token e identifica o usuário.
-
-Depois consulta:
-
-auth.users.id
-       ↓
-profiles.id
-       ↓
-organization_id + role
-
-Endpoints de autenticação
-Registrar usuário
-POST /auth/register
-
-
-Exemplo:
-
-{
-  "email": "dono@empresa.com",
-  "password": "UmaSenhaForte123!",
-  "full_name": "João Silva",
-  "organization_name": "Confecções Silva"
-}
-
-
-O primeiro usuário criado para uma nova organização recebe:
-
-role = owner
-
-Login
-POST /auth/login
-
-
-Exemplo:
-
-{
-  "email": "dono@empresa.com",
-  "password": "UmaSenhaForte123!"
-}
-
-
-O login retorna um access_token e um refresh_token.
-
-Usuário autenticado
-GET /auth/me
-
-
-Requer:
-
-Authorization: Bearer <access_token>
-
-
-Retorna informações do usuário, organização e papel.
-
-Variáveis de ambiente
-
-Crie um arquivo .env dentro de backend/.
-
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-
-Segurança
-
-O arquivo .env não deve ser versionado.
-
-Adicione ao .gitignore:
-
-.env
-.venv/
-venv/
-__pycache__/
-*.pyc
-
-
-Nunca exponha a SUPABASE_SERVICE_ROLE_KEY no frontend, no Git ou em respostas de API.
-
-A service role é uma credencial privilegiada e deve permanecer exclusivamente no backend.
-
-Instalação
-
-Crie e ative um ambiente virtual:
-
-Windows
-python -m venv venv
-venv\Scripts\activate
-
-
-Instale as dependências:
-
-pip install -r requirements.txt
-
-
-Caso ainda não exista requirements.txt, instale inicialmente:
-
-pip install fastapi uvicorn supabase pydantic-settings email-validator
-
-Executar a API
-
-Dentro da pasta backend:
-
-uvicorn app.main:app --reload
-
-
-A API estará disponível em:
-
-http://127.0.0.1:8000
-
-
-Documentação Swagger:
-
-http://127.0.0.1:8000/docs
-
-
-OpenAPI:
-
-http://127.0.0.1:8000/openapi.json
-
-Health Check
-
-Endpoint:
-
+```
 GET /health/database
+```
 
+ Ou:
 
-Exemplo:
-
+```
 curl http://localhost:8000/health/database
+```
 
+ Resposta esperada:
 
-Retorno esperado:
-
+```
 {
   "status": "ok",
   "database": "connected"
 }
+```
 
-Desenvolvimento
+---
 
-As rotas disponíveis podem ser verificadas no terminal ao iniciar a aplicação.
+ ## 🛠️ Status
 
-O main.py imprime as rotas registradas durante o desenvolvimento.
+ ### Autenticação
 
-Banco e RLS
+ - [x] Supabase Auth
+- [x] `auth.users → profiles`
+- [x] Cadastro do proprietário
+- [x] Login
+- [ ] Validação do usuário autenticado
+- [ ] Multi-tenancy
+- [ ] RLS
+- [ ] Convite de funcionários
+- [ ] Controle de permissões
 
-A aplicação utiliza PostgreSQL através do Supabase.
+ ### CRM
 
-As tabelas que contêm dados específicos de uma organização devem possuir RLS habilitado e políticas que utilizem a organização do usuário autenticado.
+ - [ ] Clientes
+- [ ] Fornecedores
+- [ ] Produtos
+- [ ] Pedidos
+- [ ] Financeiro
+- [ ] Relatórios
 
-Exemplo conceitual:
+---
 
-auth.uid()
-    ↓
-profiles.id
-    ↓
-profiles.organization_id
-    ↓
-dados da organização
+ ## 🔒 Segurança
 
+ - `.env` não deve ser versionado.
+- `SUPABASE_SERVICE_ROLE_KEY` deve permanecer somente no backend.
+- O frontend não define `organization_id` do usuário.
+- O frontend não define privilégios administrativos.
+- Dados entre organizações devem ser protegidos por RLS.
 
-O objetivo é garantir que um usuário de uma organização não consiga ler, alterar ou excluir dados pertencentes a outra organização.
+---
 
-Próximas etapas
- Registro de usuários
- Validação do JWT
- Controle de organização
- RLS para organizations
- Convite de funcionários
- Controle de permissões por role
- CRUD de clientes
- CRUD de fornecedores
- Demais endpoints do CRM
+ ## 📌 Desenvolvimento
+
+ Projeto em desenvolvimento.
+
+ A arquitetura prioriza:
+
+ **segurança → multi-tenancy → autenticação → regras de negócio → endpoints do CRM.**
+
+---
+
+ \<p align="center"\> 🧵 \<strong\>SECCO Têxtil\</strong\>\<br\> \<sub\>CRM para gestão do setor têxtil\</sub\> \</p\>
+
+ Esse formato fica bem mais adequado como **README principal do repositório**: visual, curto e suficiente para alguém clonar o projeto e entender rapidamente o que ele é e como executar.
