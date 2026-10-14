@@ -149,6 +149,7 @@ export function LoginPage() {
               name="email"
               label="E-mail"
               type="email"
+              placeholder="voce@empresa.com"
               autoComplete={isSignup ? 'email' : 'username'}
               required
             />

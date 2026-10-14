@@ -1,0 +1,20 @@
+/* Interações do dashboard: busca, notificações e filtro de período. */
+.dashboard-search-wrap { position: relative; width: min(390px, 50%); }
+.dashboard-search-wrap .dashboard-search { width: 100%; }
+.search-results { position: absolute; top: 45px; right: 0; left: 0; z-index: 45; overflow: hidden; padding: 5px; background: #fff; border: 1px solid #dfe6e1; border-radius: 9px; box-shadow: 0 14px 34px #173b3720; }
+.search-results button { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 10px; color: var(--ink); text-align: left; cursor: pointer; background: #fff; border: 0; border-radius: 6px; font: 600 11px var(--font); }
+.search-results button:hover { background: #f2f6f3; }
+.search-results small { color: #7c8d87; font-size: 9px; font-weight: 500; }
+.search-results p { margin: 9px; color: #7c8d87; font-size: 11px; }
+.notification-wrap { position: relative; }
+.notification-panel { position: absolute; top: 34px; right: -10px; z-index: 45; width: 275px; padding: 14px; background: #fff; border: 1px solid #dfe6e1; border-radius: 9px; box-shadow: 0 14px 34px #173b3720; }
+.notification-panel > div { display: flex; align-items: center; justify-content: space-between; padding-bottom: 9px; border-bottom: 1px solid #edf0ed; }
+.notification-panel b { font-size: 12px; }
+.notification-panel button { color: #72847e; cursor: pointer; background: transparent; border: 0; }
+.notification-panel p { margin: 12px 0; color: #5d716b; font-size: 11px; line-height: 1.45; }
+.notification-panel strong { color: var(--ink); }
+.notification-panel a { color: #356e5b; font-size: 10px; font-weight: 800; }
+.period-select { position: relative; display: flex; align-items: center; padding: 0 7px; cursor: pointer; border: 1px solid #e2e7e4; border-radius: 6px; }
+.period-select select { padding: 7px 15px 7px 0; color: #667872; cursor: pointer; appearance: none; outline: 0; background: transparent; border: 0; font: 600 10px var(--font); }
+.period-select svg { position: absolute; right: 7px; pointer-events: none; }
+@media (max-width: 720px) { .dashboard-search-wrap { display: none; } }

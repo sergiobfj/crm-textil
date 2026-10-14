@@ -158,8 +158,10 @@ const footerProductLinks = [
   ['Como funciona', '#como-funciona'],
   ['Para quem é', '#para-quem'],
 ]
+// "Sobre" ainda não tem página, por isso fica como texto (href: null).
+// Quando a página existir, troque o null pelo link ou pela âncora da seção.
 const footerCompanyLinks = [
-  ['Sobre', '#inicio'],
+  ['Sobre', null],
   ['Contato', 'mailto:contato@seccolab.com.br'],
 ]
 
@@ -693,9 +695,13 @@ function FooterGroup({ title, links }) {
   return (
     <div>
       <b>{title}</b>
-      {links.map(([label, href]) => (
-        <a key={label} href={href}>{label}</a>
-      ))}
+      {links.map(([label, href]) =>
+        href ? (
+          <a key={label} href={href}>{label}</a>
+        ) : (
+          <span key={label} className="footer-text">{label}</span>
+        )
+      )}
     </div>
   )
 }

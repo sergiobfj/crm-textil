@@ -434,3 +434,9 @@
   justify-content: center;
   gap: 6px;
 }
+
+.footer-text {
+  font-size: 12px;
+  color: var(--muted);
+  cursor: default;
+}
